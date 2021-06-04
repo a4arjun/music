@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Music</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body>
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="playlist-overlay">
+        <div class="playlist">
+          <ul>
+            <li class="active"><a href="">Channel 1</a></li>
+            <li><a href="">Channel 2</a></li>
+            <li><a href="">Channel 3</a></li>
+            <li><a href="">Channel 4</a></li>
+            <li><a href="">Channel 5</a></li>
+          </ul>
+        </div>        
+      </div>
+
+
+      <div class="album-art">
+        <img src="" alt="">
+        <h3 id="channelName">Channel Name goes here</h3>
+      </div>
+      <div class="player">
+        <ul>
+          <li id="list"><i data-feather="list"></i></li>
+          <li id="prev"><i data-feather="arrow-left"></i></li>
+          <li id="play"><i data-feather="pause"></i></li>
+          <li id="next"><i data-feather="arrow-right"></i></li>
+          <li><i data-feather="shuffle"></i></li>          
+        </ul>
+      </div>
+    </div>
+    <audio controls id='myaudio' autoplay="true">
+      <source src="https://playerservices.streamtheworld.com/api/livestream-redirect/CLUBFMUAEAAC.aac">
+    </audio>    
+    
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <audio id="player" controls autoplay></audio>
+    <script 
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"></script>
+    <script>
+      feather.replace();
+
+      $(document).ready(function () {
+        var list_clicks = 0;
+        var play_pause = 0;
+        var player = document.getElementById('player');
+        var source = 'https://bcovlive-a.akamaihd.net/19b535b7499a4719a5c19e043063f5d9/ap-southeast-1/6034685947001/playlist.m3u8';
+        
+        const channels = [
+          {
+            channelName: 'Radio Mango',
+            channelLocation: 'Kannur',
+            channelTag: '',
+            channelFreq: '91.9',
+            channelSRC: 'https://bcovlive-a.akamaihd.net/19b535b7499a4719a5c19e043063f5d9/ap-southeast-1/6034685947001/playlist.m3u8'
+          },
+          {
+            channelName: 'Club FM',
+            channelLocation: 'Kannur',
+            channelTag: '',
+            channelFreq: '94.3',
+            channelSRC: 'http://stream.zeno.fm/512rbf1e3qzuv',
+          },
+        ];
+
+        let currentIndex = 0;
+        let channelCount = channels.length;
+
+        function nextChannel(){
+          if(currentIndex < (channelCount - 1)){
+            currentIndex++;
+            console.log(currentIndex);
+          }
+        }
+
+        function previousChannel(){
+          if(currentIndex > 0){
+            currentIndex--;
+            console.log(currentIndex);
+          }
+        }
+
+        
+        //start player
+        startPlayer(channels[1].channelSRC);
+
+
+        $('#channelName').text(`${channels[0].channelName} ${channels[0].channelFreq}`);
+        
+        channels.forEach((value) => {
+          console.log(value.channelName);
+        });
+
+        function startPlayer(source){
+          console.log(source)
+          if(Hls.isSupported())
+          {
+              var hls = new Hls();
+              hls.loadSource(source);
+              hls.attachMedia(player);
+              hls.on(Hls.Events.MANIFEST_PARSED,function()
+              {
+                  player.play();
+              });
+          }
+          else if (player.canPlayType('application/vnd.apple.mpegurl'))
+          {
+              player.src = source;
+              player.addEventListener('canplay',function()
+              {
+                player.play();
+              });
+          }
+          else{
+            player.src = source;
+          }
+        }
+
+        function pause(){
+          player.pause();
+        }
+
+        function play() {
+          player.play();
+        }
+
+        $('#list').click(function(){
+            if (list_clicks % 2 == 0) {
+              $('.playlist-overlay').fadeIn();
+              $(this).css('color', '#03A9F4');
+            } else {
+              $('.playlist-overlay').fadeOut();
+              $(this).css('color', '#333');
+            }
+            ++list_clicks;
+        });
+        $('.playlist-overlay').click(function(){
+          $(this).fadeOut();
+          $('#list').css('color', '#333');
+          ++list_clicks;
+        });
+        $('#play').click(function(){
+          if (list_clicks % 2 == 0) {
+            $("#play").html('<i data-feather="play"></i>');
+            feather.replace();
+            pause();
+          } else {
+            play();
+            $("#play").html('<i data-feather="pause"></i>');
+            feather.replace();
+          }
+          ++list_clicks;
+        });
+
+        $('#next').click(function(){
+          nextChannel();
+        })
+
+        $('#prev').click(function(){
+          previousChannel();
+        })
+      });
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
